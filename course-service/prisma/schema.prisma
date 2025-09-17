@@ -1,0 +1,105 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model DanceStyle {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  imageUrl    String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  courses Course[]
+
+  @@map("dance_styles")
+}
+
+model Course {
+  id            String      @id @default(cuid())
+  name          String
+  description   String?
+  danceStyleId  String
+  level         CourseLevel
+  duration      Int         // Duration in minutes
+  maxStudents   Int         @default(15)
+  price         Decimal
+  isActive      Boolean     @default(true)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  // Relations
+  danceStyle DanceStyle @relation(fields: [danceStyleId], references: [id])
+  classes    Class[]
+
+  @@map("courses")
+}
+
+model Room {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  capacity    Int
+  equipment   String[] // Array of equipment available
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  classes Class[]
+
+  @@map("rooms")
+}
+
+model Class {
+  id           String      @id @default(cuid())
+  courseId     String
+  instructorId String
+  roomId       String
+  startTime    DateTime
+  endTime      DateTime
+  status       ClassStatus @default(SCHEDULED)
+  notes        String?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  // Relations
+  course Course @relation(fields: [courseId], references: [id])
+  room   Room   @relation(fields: [roomId], references: [id])
+
+  @@map("classes")
+}
+
+model Schedule {
+  id           String    @id @default(cuid())
+  instructorId String
+  dayOfWeek    Int       // 0 = Sunday, 1 = Monday, etc.
+  startTime    String    // Format: "HH:MM"
+  endTime      String    // Format: "HH:MM"
+  isAvailable  Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@unique([instructorId, dayOfWeek, startTime])
+  @@map("schedules")
+}
+
+enum CourseLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  PROFESSIONAL
+}
+
+enum ClassStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  POSTPONED
+}

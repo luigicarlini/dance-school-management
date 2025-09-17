@@ -1,0 +1,48 @@
+{
+  "name": "dance-school-frontend",
+  "version": "1.0.0",
+  "description": "Frontend for Dance School Management System",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "test": "jest",
+    "test:watch": "jest --watch"
+  },
+  "dependencies": {
+    "@headlessui/react": "^1.7.15",
+    "@heroicons/react": "^2.0.18",
+    "@next/font": "13.4.10",
+    "@stripe/react-stripe-js": "^2.2.0",
+    "@stripe/stripe-js": "^1.54.0",
+    "axios": "^1.4.0",
+    "date-fns": "^2.30.0",
+    "framer-motion": "^10.16.4",
+    "next": "13.4.10",
+    "react": "18.2.0",
+    "react-calendar": "^4.2.1",
+    "react-datepicker": "^4.11.0",
+    "react-dom": "18.2.0",
+    "react-hook-form": "^7.45.4",
+    "react-hot-toast": "^2.4.1",
+    "react-query": "^3.39.3",
+    "react-select": "^5.7.3",
+    "socket.io-client": "^4.7.0",
+    "zustand": "^4.4.1"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.0.0",
+    "@testing-library/react": "^14.0.0",
+    "@types/node": "^20.19.14",
+    "@types/react": "^18.2.21",
+    "@types/react-dom": "^18.2.7",
+    "autoprefixer": "^10.4.21",
+    "eslint": "^8.45.0",
+    "eslint-config-next": "13.4.10",
+    "jest": "^29.6.2",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.13",
+    "typescript": "^5.3.3"
+  }
+}

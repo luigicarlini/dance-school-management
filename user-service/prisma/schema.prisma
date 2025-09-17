@@ -1,0 +1,64 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  password    String
+  firstName   String
+  lastName    String
+  phone       String?
+  dateOfBirth DateTime?
+  role        UserRole @default(STUDENT)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Student specific fields
+  emergencyContact String?
+  medicalNotes     String?
+  parentEmail      String?
+
+  // Instructor specific fields
+  specializations String[]
+  bio             String?
+  hourlyRate      Decimal?
+
+  // Relations
+  profile UserProfile?
+
+  @@map("users")
+}
+
+model UserProfile {
+  id       String @id @default(cuid())
+  userId   String @unique
+  avatar   String?
+  address  String?
+  city     String?
+  zipCode  String?
+  country  String  @default("Italy")
+
+  // Preferences
+  preferredLanguage String @default("it")
+  emailNotifications Boolean @default(true)
+  smsNotifications   Boolean @default(false)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_profiles")
+}
+
+enum UserRole {
+  STUDENT
+  INSTRUCTOR
+  ADMIN
+  STAFF
+}

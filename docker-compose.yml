@@ -1,0 +1,221 @@
+services:
+  # API Gateway
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - JWT_SECRET=your-jwt-secret
+      - USER_SERVICE_URL=http://user-service:3001
+      - COURSE_SERVICE_URL=http://course-service:3002
+      - BOOKING_SERVICE_URL=http://booking-service:3003
+      - PAYMENT_SERVICE_URL=http://payment-service:3004
+      - NOTIFICATION_SERVICE_URL=http://notification-service:3005
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
+      - rabbitmq
+      - user-service
+      - course-service
+      - booking-service
+      - payment-service
+      - notification-service
+
+  # User Management Service
+  user-service:
+    build: ./user-service
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - DATABASE_URL=postgresql://user:password@postgres-users:5432/users_db
+      - REDIS_URL=redis://redis:6379
+      - RABBITMQ_URL=amqp://admin:password@rabbitmq:5672
+      - JWT_SECRET=your-jwt-secret
+    depends_on:
+      - postgres-users
+      - redis
+      - rabbitmq
+
+  # Course Management Service
+  course-service:
+    build: ./course-service
+    ports:
+      - "3002:3002"
+    environment:
+      - PORT=3002
+      - DATABASE_URL=postgresql://user:password@postgres-courses:5432/courses_db
+      - REDIS_URL=redis://redis:6379
+      - RABBITMQ_URL=amqp://admin:password@rabbitmq:5672
+    depends_on:
+      - postgres-courses
+      - redis
+      - rabbitmq
+
+  # Booking Service
+  booking-service:
+    build: ./booking-service
+    ports:
+      - "3003:3003"
+    environment:
+      - PORT=3003
+      - DATABASE_URL=postgresql://user:password@postgres-bookings:5432/bookings_db
+      - REDIS_URL=redis://redis:6379
+      - RABBITMQ_URL=amqp://admin:password@rabbitmq:5672
+    depends_on:
+      - postgres-bookings
+      - redis
+      - rabbitmq
+
+  # Payment Service
+  payment-service:
+    build: ./payment-service
+    ports:
+      - "3004:3004"
+    environment:
+      - PORT=3004
+      - DATABASE_URL=postgresql://user:password@postgres-payments:5432/payments_db
+      - REDIS_URL=redis://redis:6379
+      - RABBITMQ_URL=amqp://admin:password@rabbitmq:5672
+      - STRIPE_SECRET_KEY=your-stripe-secret
+    depends_on:
+      - postgres-payments
+      - redis
+      - rabbitmq
+
+  # Notification Service
+  notification-service:
+    build: ./notification-service
+    ports:
+      - "3005:3005"
+    environment:
+      - PORT=3005
+      - REDIS_URL=redis://redis:6379
+      - RABBITMQ_URL=amqp://admin:password@rabbitmq:5672
+      - DATABASE_URL=postgresql://user:password@postgres-notifications:5432/notifications_db
+      - SMTP_HOST=smtp.gmail.com
+      - SMTP_USER=your-email@gmail.com
+      - SMTP_PASS=your-app-password
+      - TWILIO_SID=your-twilio-sid
+      - TWILIO_TOKEN=your-twilio-token
+    depends_on:
+      - redis
+      - rabbitmq
+      - postgres-notifications
+
+  # Frontend
+  frontend:
+    build: ./frontend
+    ports:
+      - "3006:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:3000/api
+    depends_on:
+      - api-gateway
+
+  # Databases
+  postgres-users:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=users_db
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - users_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d users_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres-courses:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=courses_db
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - courses_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d courses_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres-bookings:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=bookings_db
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - bookings_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d bookings_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres-payments:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=payments_db
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - payments_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d payments_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres-notifications:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=notifications_db
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - notifications_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d notifications_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Cache & Message Queue
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=password
+    ports:
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  users_data:
+  courses_data:
+  bookings_data:
+  payments_data:
+  notifications_data:
+  redis_data:
+  rabbitmq_data:
