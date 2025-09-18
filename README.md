@@ -36,3 +36,32 @@ docker-compose up -d --build
 - Frontend: http://localhost
 - API Gateway: http://localhost:3000
 - RabbitMQ: http://localhost:15672 (admin/password)
+
+
+# Dance School Management
+
+Progetto Next.js + Tailwind per la gestione di una scuola di danza.
+
+## Funzionalità
+
+- Dashboard con riepilogo lezioni e corsi
+- Hero section con immagine e call to action
+- Autenticazione (in sviluppo)
+- Gestione corsi e prenotazioni
+
+## Setup
+
+1. Clona il repository
+2. Installa le dipendenze con `npm install` o `yarn`
+3. Avvia il progetto con `npm run dev` o `yarn dev`
+4. Apri `http://localhost:3000` nel browser
+
+## Tecnologie
+
+- Next.js
+- Tailwind CSS
+- TypeScript
+
+## Contribuire
+
+Apri una pull request o issue per proporre modifiche o segnalare problemi.
